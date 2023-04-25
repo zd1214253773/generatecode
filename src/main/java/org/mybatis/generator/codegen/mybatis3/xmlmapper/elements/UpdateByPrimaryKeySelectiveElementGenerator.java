@@ -21,6 +21,7 @@ import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
+import org.mybatis.generator.constant.Constant;
 
 /**
  * 
@@ -102,7 +103,7 @@ public class UpdateByPrimaryKeySelectiveElementGenerator extends
             answer.addElement(new TextElement(sb.toString()));
         }
         sb.setLength(0);
-        sb.append(" and enabled_flag = 'Y' ");
+        sb.append(" and " + Constant.ENABLED_FLAG + " = " + Constant.ENABLED_FLAG_Y +" ");
         answer.addElement(new TextElement(sb.toString()));
 
         if (context.getPlugins()

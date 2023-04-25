@@ -27,6 +27,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
+import org.mybatis.generator.codegen.mybatis3.Constant;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
@@ -35,6 +36,8 @@ import org.mybatis.generator.config.TableConfiguration;
  * @author Jeff Butler
  */
 public class JavaBeansUtil {
+
+
 
     private JavaBeansUtil() {
         super();
@@ -216,8 +219,12 @@ public class JavaBeansUtil {
         field.setVisibility(JavaVisibility.PRIVATE);
         field.setType(fqjt);
         field.setName(property);
+        field.setOriginConment(introspectedColumn.getRemarks());
         context.getCommentGenerator().addFieldComment(field,
                 introspectedTable, introspectedColumn);
+        if(introspectedTable.getPrimaryKeyColumns().contains(introspectedColumn)) {
+            field.addAnnotation(Constant.PRIMARY_KEY_ANNOTATION);
+        }
 
         return field;
     }

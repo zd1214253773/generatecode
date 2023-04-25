@@ -16,6 +16,7 @@
 package org.mybatis.generator.api;
 
 import java.sql.Types;
+import java.util.Objects;
 import java.util.Properties;
 
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -339,5 +340,19 @@ public class IntrospectedColumn {
 
     public void setGeneratedAlways(boolean isGeneratedAlways) {
         this.isGeneratedAlways = isGeneratedAlways;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        IntrospectedColumn that = (IntrospectedColumn) o;
+        return actualColumnName.equals(that.actualColumnName) &&
+                jdbcTypeName.equals(that.jdbcTypeName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(actualColumnName, jdbcTypeName);
     }
 }

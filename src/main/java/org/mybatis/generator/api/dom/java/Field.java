@@ -26,6 +26,8 @@ public class Field extends JavaElement {
     private boolean isTransient;
     private boolean isVolatile;
 
+    private String originConment;
+
     public Field() {
         // use a default name to avoid NPE
         this("foo", FullyQualifiedJavaType.getIntInstance()); //$NON-NLS-1$
@@ -66,6 +68,14 @@ public class Field extends JavaElement {
 
     public void setInitializationString(String initializationString) {
         this.initializationString = initializationString;
+    }
+
+    public String getOriginConment() {
+        return originConment;
+    }
+
+    public void setOriginConment(String originConment) {
+        this.originConment = originConment;
     }
 
     public String getFormattedContent(int indentLevel, CompilationUnit compilationUnit) {

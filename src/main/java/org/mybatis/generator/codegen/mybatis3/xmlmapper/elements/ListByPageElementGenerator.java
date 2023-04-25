@@ -9,6 +9,7 @@ import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
+import org.mybatis.generator.constant.Constant;
 
 import java.text.MessageFormat;
 
@@ -73,8 +74,8 @@ public class ListByPageElementGenerator extends
 
             isNotNullElement.addElement(new TextElement(sb.toString()));
         }
-        dynamicElement.addElement(new TextElement(" and enabled_flag = 'Y' "));
-        answer.addElement(new TextElement("order by creation_date desc"));
+        dynamicElement.addElement(new TextElement(" and " + Constant.ENABLED_FLAG + " = " + Constant.ENABLED_FLAG_Y +" "));
+        answer.addElement(new TextElement("order by " + Constant.CREATION_DATE + " desc"));
         if (context.getPlugins()
                 .sqlMapUpdateByPrimaryKeySelectiveElementGenerated(answer,
                         introspectedTable)) {

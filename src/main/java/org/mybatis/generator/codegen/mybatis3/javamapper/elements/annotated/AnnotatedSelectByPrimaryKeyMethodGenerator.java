@@ -28,6 +28,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.SelectByPrimaryKeyMethodGenerator;
+import org.mybatis.generator.constant.Constant;
 
 /**
  * 
@@ -113,7 +114,7 @@ public class AnnotatedSelectByPrimaryKeyMethodGenerator extends SelectByPrimaryK
 
         sb.setLength(0);
         javaIndent(sb, 1);
-        sb.append("\"and enabled_flag = 'Y'\"");
+        sb.append("\"and " + Constant.ENABLED_FLAG + " = " + Constant.ENABLED_FLAG_Y + "\"");
         method.addAnnotation(sb.toString());
 
         method.addAnnotation("})"); //$NON-NLS-1$

@@ -20,7 +20,9 @@ import static org.mybatis.generator.internal.util.JavaBeansUtil.getJavaBeansGett
 import static org.mybatis.generator.internal.util.JavaBeansUtil.getJavaBeansSetter;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
+import java.text.MessageFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
@@ -66,6 +68,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         //@Data
         topLevelClass.addAnnotation(Constant.DATA_ANNOTATION);
         topLevelClass.addImportedType(Constant.LOMBOK_DATA);
+
         FullyQualifiedJavaType superClass = getSuperClass();
         if (superClass != null) {
             topLevelClass.setSuperClass(superClass);
@@ -100,6 +103,9 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
                     Plugin.ModelClassType.BASE_RECORD)) {
                 topLevelClass.addField(field);
                 topLevelClass.addImportedType(field.getType());
+                if(!field.getAnnotations().isEmpty()){
+                    topLevelClass.addImportedType(Constant.PRIMARY_KEY_ANO_PAKAGE);
+                }
             }
 
             /*Method method = getJavaBeansGetter(introspectedColumn, context, introspectedTable);
@@ -146,6 +152,12 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
             voClass.setType(new FullyQualifiedJavaType(voName));
             //筛选字段和方法
             abandonFieldsAndMethods(voClass);
+
+            //加ApiModel注解
+            addApiModelAnnotation(voClass);
+            //为字段加ApiModelProperty
+            addAnnotationOnField(voClass);
+
             //注册
             introspectedTable.setVoType(voName);
             answer.add(voClass);
@@ -195,9 +207,15 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
                     + modelClass.getType().getShortName()
                     + "QueryVO";
             queryVoClass.setType(new FullyQualifiedJavaType(queryVoName));
+
             //筛选字段
             //筛选字段和方法
             abandonFieldsAndMethods(queryVoClass);
+
+            //加ApiModel注解
+            addApiModelAnnotation(queryVoClass);
+            //为字段加ApiModelProperty
+            addAnnotationOnField(queryVoClass);
             String superClassName = context.getJavaModelGeneratorConfiguration()
                     .getProperty(PropertyRegistry.QUERY_VOSUPER_CLASS);
             if (StringUtility.stringHasValue(superClassName)) {
@@ -208,6 +226,23 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
             answer.add(queryVoClass);
         }
         return answer;
+    }
+
+    private void addAnnotationOnField(TopLevelClass targetClass) {
+        List<Field> fields = targetClass.getFields();
+        List<Field> fieldAns = fields.stream().filter(f->f.getOriginConment() != null).collect(Collectors.toList());
+        fieldAns.forEach(
+                field -> field.addAnnotation(MessageFormat.format(
+                         Constant.API_MODEL_PROPERTY + "(value=\"{0}\")", field.getOriginConment()))
+        );
+        if(!fieldAns.isEmpty()) {
+            targetClass.addImportedType(Constant.API_MODEL_PROPERTYL_FULL_NAME);
+        }
+    }
+
+    private void addApiModelAnnotation(TopLevelClass targetClass) {
+        targetClass.addAnnotation(Constant.API_MODEL);
+        targetClass.addImportedType(Constant.API_MODEL_FULL_NAME);
     }
 
 

@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.service;
 
+import org.apache.tools.ant.util.StringUtils;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -23,6 +24,7 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
 public class ServiceGenerator extends AbstractJavaGenerator {
 
     public static final String SPLITOR = ", ";
+
     private AbstractJavaClientGenerator javaClientGenerator;
 
     public ServiceGenerator(AbstractJavaClientGenerator javaClientGenerator) {
@@ -147,12 +149,12 @@ public class ServiceGenerator extends AbstractJavaGenerator {
                     if (parameter.getType().equals(baseRecordType)) {
                         methodCopy.getParameters().remove(parameter);
                         String shortName = parameter.getType().getShortName();
-                        if(isUseProgressive()) {
+                        if (isUseProgressive()) {
                             //将vo作为参数
                             FullyQualifiedJavaType voJavaType = new FullyQualifiedJavaType(introspectedTable.getVoType());
                             String shortName2 = BeanUtils.firstToLower(voJavaType.getShortName());
                             methodCopy.getParameters().add(0, new Parameter(voJavaType, shortName2));
-                        }else {
+                        } else {
                             methodCopy.getParameters().add(0, new Parameter(parameter.getType(),
                                     BeanUtils.firstToLower(shortName)));
                         }
@@ -160,16 +162,16 @@ public class ServiceGenerator extends AbstractJavaGenerator {
                     }
 
                     //假如返回类型是baseRecord 或者 baseRecord -> vo or vo list
-                    boolean shouldConvert =  isTypeOrListType(introspectedTable.getBaseRecordType(), methodCopy.getReturnType());
-                    if(shouldConvert) {
+                    boolean shouldConvert = isTypeOrListType(introspectedTable.getBaseRecordType(), methodCopy.getReturnType());
+                    if (shouldConvert) {
                         FullyQualifiedJavaType voType = new FullyQualifiedJavaType(introspectedTable.getVoType());
-                       if(methodCopy.getReturnType().equals(new FullyQualifiedJavaType(introspectedTable.getBaseRecordType()))) {
-                           methodCopy.setReturnType(voType);
+                        if (methodCopy.getReturnType().equals(new FullyQualifiedJavaType(introspectedTable.getBaseRecordType()))) {
+                            methodCopy.setReturnType(voType);
                         } else {
-                           FullyQualifiedJavaType listVoType = FullyQualifiedJavaType.getNewListInstance();
-                           listVoType.addTypeArgument(voType);
-                           methodCopy.setReturnType(listVoType);
-                       }
+                            FullyQualifiedJavaType listVoType = FullyQualifiedJavaType.getNewListInstance();
+                            listVoType.addTypeArgument(voType);
+                            methodCopy.setReturnType(listVoType);
+                        }
                     }
 
                     //参数依赖导入
@@ -180,6 +182,12 @@ public class ServiceGenerator extends AbstractJavaGenerator {
                 //导入返回参数类型
                 serviceInterface.addImportedTypes(methodCopy.getReturnType().getImportList());
                 serviceInterface.addMethod(methodCopy);
+                if (methodCopy.getName().contains(Constant.BY_PAGE)) {
+                    //添加listBy方法
+                    Method methodListBy = new Method(methodCopy);
+                    methodListBy.setName(Constant.LIST_BY);
+                    serviceInterface.addMethod(methodListBy);
+                }
             }
             serviceInterface.addImportedType(baseRecordType);
         } else {
@@ -188,7 +196,7 @@ public class ServiceGenerator extends AbstractJavaGenerator {
     }
 
     private boolean isUseProgressive() {
-       return introspectedTable.isProgressive() && StringUtility.stringHasValue(introspectedTable.getVoType());
+        return introspectedTable.isProgressive() && StringUtility.stringHasValue(introspectedTable.getVoType());
     }
 
     private String firstToLower(String name) {
@@ -272,7 +280,7 @@ public class ServiceGenerator extends AbstractJavaGenerator {
             Method methodCopy = new Method(method);
             if (mapperFieldName != null) {
                 StringBuilder stringBuilder = new StringBuilder("return ");
-                if(isUseProgressive()) {
+                if (isUseProgressive()) {
                     //businessObjectLayoutMapper.insert(BeanUtils.copy(businessObjectLayoutVO, BusinessObjectLayout.class))
                     //处理返回类型
                     boolean voTypeOrListVoType = isTypeOrListType(introspectedTable.getVoType(), methodCopy.getReturnType());
@@ -280,12 +288,17 @@ public class ServiceGenerator extends AbstractJavaGenerator {
                     String invokeMapperMethodStr = getInvokeMapperMethodStr(topLevelClass, mapperFieldName, methodCopy);
 
 
-                    if(voTypeOrListVoType) {
+                    if (voTypeOrListVoType) {
+                        if (Constant.LIST_BY.equals(methodCopy.getName())) {
+                            methodCopy.addBodyLine(this.specialForListByMethod(topLevelClass, methodCopy));
+                            invokeMapperMethodStr = invokeMapperMethodStr.replaceAll(Constant.LIST_BY + "\\(" , Constant.LIST_BY_PAGE + Constant.LEFT_BRACKET);
+                        }
                         stringBuilder.append("BeanUtils.copy(");
                         stringBuilder.append(invokeMapperMethodStr);
                         FullyQualifiedJavaType javaVoType = new FullyQualifiedJavaType(introspectedTable.getVoType());
                         stringBuilder.append(", " + javaVoType.getShortName() + ".class");
                         stringBuilder.append(")");
+
                         topLevelClass.addImportedType(introspectedTable.getVoType());
                     } else {
                         stringBuilder.append(invokeMapperMethodStr);
@@ -322,12 +335,12 @@ public class ServiceGenerator extends AbstractJavaGenerator {
     //targetType 是否是 sourceType类型或者list<sourceType>类型
     private boolean isTypeOrListType(FullyQualifiedJavaType sourceType, FullyQualifiedJavaType targetType) {
 
-        if(targetType.equals(sourceType)) {
+        if (targetType.equals(sourceType)) {
             return true;
         }
         FullyQualifiedJavaType listVoType = FullyQualifiedJavaType.getNewListInstance();
         listVoType.addTypeArgument(sourceType);
-        if(targetType.equals(listVoType)) {
+        if (targetType.equals(listVoType)) {
             return true;
         }
         return false;
@@ -343,18 +356,28 @@ public class ServiceGenerator extends AbstractJavaGenerator {
         }
     }
 
+    private String specialForListByMethod(TopLevelClass topLevelClass, Method methodCopy) {
+        if (!methodCopy.getParameters().isEmpty()) {
+            StringBuilder stringBuilder = new StringBuilder(methodCopy.getParameters().get(0).getName());
+            stringBuilder.append(".set" + Constant.PAGE_PARAM_CLASS_SHORT_NAME + "(null);");
+            return stringBuilder.toString();
+        }
+        return null;
+
+    }
+
     private String getInvokeMapperMethodStr(TopLevelClass topLevelClass, String mapperFieldName, Method methodCopy) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(mapperFieldName + "." + methodCopy.getName() + "(");
         for (Parameter parameter : methodCopy.getParameters()) {
             //BeanUtils.copy(businessObjectLayoutVO
-            if(parameter.getType().getFullyQualifiedName().equals(introspectedTable.getVoType())) {
+            if (parameter.getType().getFullyQualifiedName().equals(introspectedTable.getVoType())) {
                 stringBuilder.append("BeanUtils.copy(").append(parameter.getName())
                         .append(SPLITOR).append(introspectedTable.getBaseRecordShortName())
                         .append(".class)").append(SPLITOR);
                 topLevelClass.addImportedType(introspectedTable.getBaseRecordType());
                 topLevelClass.addImportedType(Constant.BEAN_UTILS);
-            }else {
+            } else {
                 stringBuilder.append(parameter.getName()).append(SPLITOR);
             }
             topLevelClass.addImportedTypes(parameter.getType().getImportList());

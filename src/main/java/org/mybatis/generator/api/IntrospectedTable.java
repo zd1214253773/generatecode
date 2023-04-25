@@ -21,6 +21,7 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.mybatis.generator.codegen.mybatis3.Constant;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.GeneratedKey;
 import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
@@ -326,15 +327,12 @@ public abstract class IntrospectedTable {
 
     public List<IntrospectedColumn> getColumnsInVO() {
         List<IntrospectedColumn> answer = getAllColumns();
-        return answer.stream().filter(c->FIELDS.stream().noneMatch(f->f.equalsIgnoreCase(c.getJavaProperty())))
+        return answer.stream().filter(c-> org.mybatis.generator.constant.Constant.FIELDS.stream().noneMatch(f->f.equalsIgnoreCase(c.getJavaProperty())))
                 .collect(Collectors.toList());
     }
 
-    private static List<String> FIELDS = Arrays.asList("createdBy", "creationDate", "lastUpdatedBy",
-            "lastUpdateDate", "enabledFlag");
-
     public List<String> getAbandonFieldsForVO() {
-        return new ArrayList<>(FIELDS);
+        return new ArrayList<>(org.mybatis.generator.constant.Constant.FIELDS);
     }
 
 
@@ -565,7 +563,7 @@ public abstract class IntrospectedTable {
         setUpdateByPrimaryKeyStatementId("updateByPrimaryKey"); //$NON-NLS-1$
         setUpdateByPrimaryKeySelectiveStatementId("updateByPrimaryKeySelective"); //$NON-NLS-1$
         setUpdateByPrimaryKeyWithBLOBsStatementId("updateByPrimaryKeyWithBLOBs"); //$NON-NLS-1$
-        internalAttributes.put(InternalAttribute.ATTR_LIST_BY_PAGE_STATEMENT_ID, "listByPage");
+        internalAttributes.put(InternalAttribute.ATTR_LIST_BY_PAGE_STATEMENT_ID, Constant.LIST_BY_PAGE);
         setBaseResultMapId("BaseResultMap"); //$NON-NLS-1$
         setResultMapWithBLOBsId("ResultMapWithBLOBs"); //$NON-NLS-1$
         setExampleWhereClauseId("Example_Where_Clause"); //$NON-NLS-1$

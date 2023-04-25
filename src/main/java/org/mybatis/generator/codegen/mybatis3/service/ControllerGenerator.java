@@ -15,6 +15,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mybatis.generator.codegen.mybatis3.Constant.*;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 /**
@@ -87,7 +88,7 @@ public class ControllerGenerator extends AbstractJavaGenerator {
         topLevelClass.addAnnotation("@RestController");
         topLevelClass.addImportedType("org.springframework.web.bind.annotation.RestController");
         topLevelClass.addAnnotation(MessageFormat.format("@RequestMapping(value = \"/{0}\")",
-                BeanUtils.firstToLower(topLevelClass.getType().getShortName())));
+                BeanUtils.removeLastStr(BeanUtils.firstToLower(topLevelClass.getType().getShortName()), "Controller") ));
         topLevelClass.addImportedType("org.springframework.web.bind.annotation.RequestMapping");
 
 
@@ -190,7 +191,7 @@ public class ControllerGenerator extends AbstractJavaGenerator {
 
     private void implMethodsFromInterface(TopLevelClass topLevelClass, Interface interFace, String serviceName) {
 
-        topLevelClass.addImportedType("com.zte.bmt.mso.util.ServiceDataUtils");
+        topLevelClass.addImportedType(RETURN_INCLUDE_STATIC_SUCCESS_CLASS_NAME);
         //实现接口的方法
         List<Method> methods = interFace.getMethods();
         for (Method method : methods) {
@@ -202,7 +203,7 @@ public class ControllerGenerator extends AbstractJavaGenerator {
             }
             if (serviceName != null) {
                 String splitor = ", ";
-                StringBuilder stringBuilder = new StringBuilder("return ServiceDataUtils.success(" + serviceName + "." + method.getName() + "(");
+                StringBuilder stringBuilder = new StringBuilder("return " + RETURN_INCLUDE_STATIC_SUCCESS_CLASS_SHORT_NAME + ".success(" + serviceName + "." + method.getName() + "(");
                 for (Parameter parameter : methodCopy.getParameters()) {
                     stringBuilder.append(parameter.getName()).append(splitor);
                 }
@@ -212,7 +213,7 @@ public class ControllerGenerator extends AbstractJavaGenerator {
                 stringBuilder.append("));");
                 methodCopy.addBodyLine(stringBuilder.toString());
                 //重新设置返回类型
-                String returnTypeStr = "com.zte.itp.msa.core.model.ServiceData";
+                String returnTypeStr = Constant.RETURN_TYPE_CLASS_STR;
                 FullyQualifiedJavaType javaType = new FullyQualifiedJavaType(returnTypeStr);
                 if(methodCopy.getReturnType().isPrimitive()) {
                     javaType.addTypeArgument(FullyQualifiedJavaType.getObjectInstance());
@@ -248,6 +249,9 @@ public class ControllerGenerator extends AbstractJavaGenerator {
             if (name.contains("ByPage")) {
                 ant = "@ApiOperation(\"查询{0}对象-支持分页\")";
                 methodCopy.addAnnotation("@GetMapping(\"/page\")");
+            }else if (name.contains(LIST_BY)) {
+                ant = "@ApiOperation(\"查询{0}对象-不支持分页\")";
+                methodCopy.addAnnotation("@GetMapping(\"/"+ LIST_BY +"\")");
             } else{
                 methodCopy.addAnnotation("@GetMapping");
             }

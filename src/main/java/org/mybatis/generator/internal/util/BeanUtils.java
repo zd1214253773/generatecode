@@ -35,4 +35,17 @@ public class BeanUtils {
                 (name.length() > 1 ? name.substring(1) : "");
     }
 
+    public static String removeLastStr(String name, String relStr) {
+        if (name == null || name.length() < 1) {
+            return name;
+        }
+        int index = name.lastIndexOf(relStr);
+        String result = name;
+        if(index>0) {
+            result = result.substring(0, index);
+
+        }
+        return result;
+    }
+
 }

@@ -17,7 +17,9 @@ package org.mybatis.generator.api.dom.java;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.mybatis.generator.api.dom.OutputUtilities;
 
@@ -41,7 +43,7 @@ public abstract class JavaElement implements Serializable {
     private boolean isFinal;
 
     /** The annotations. */
-    private List<String> annotations;
+    private Set<String> annotations;
 
     /**
      * Instantiates a new java element.
@@ -49,7 +51,7 @@ public abstract class JavaElement implements Serializable {
     public JavaElement() {
         super();
         javaDocLines = new ArrayList<String>();
-        annotations = new ArrayList<String>();
+        annotations = new LinkedHashSet<>();
     }
 
     /**
@@ -91,7 +93,7 @@ public abstract class JavaElement implements Serializable {
      *
      * @return the annotations
      */
-    public List<String> getAnnotations() {
+    public Set<String> getAnnotations() {
         return annotations;
     }
 

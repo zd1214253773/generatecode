@@ -17,21 +17,23 @@ package org.mybatis.generator.api.dom.java;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Parameter implements Serializable {
     private String name;
     private FullyQualifiedJavaType type;
     private boolean isVarargs;
 
-    private List<String> annotations;
+    private Set<String> annotations;
 
     public Parameter(FullyQualifiedJavaType type, String name, boolean isVarargs) {
         super();
         this.name = name;
         this.type = type;
         this.isVarargs = isVarargs;
-        annotations = new ArrayList<String>();
+        annotations = new LinkedHashSet<String>();
     }
 
     public Parameter(FullyQualifiedJavaType type, String name) {
@@ -62,7 +64,7 @@ public class Parameter implements Serializable {
         return type;
     }
 
-    public List<String> getAnnotations() {
+    public Set<String> getAnnotations() {
         return annotations;
     }
 

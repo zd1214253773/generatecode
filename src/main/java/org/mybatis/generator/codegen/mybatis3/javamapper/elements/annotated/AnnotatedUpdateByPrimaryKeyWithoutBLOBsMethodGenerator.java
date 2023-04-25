@@ -30,6 +30,7 @@ import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.UpdateByPrimaryKeyWithoutBLOBsMethodGenerator;
+import org.mybatis.generator.constant.Constant;
 
 /**
  * @author Jeff Butler
@@ -69,9 +70,10 @@ public class AnnotatedUpdateByPrimaryKeyWithoutBLOBsMethodGenerator
             columns = ListUtilities.removeGeneratedAlwaysColumns(introspectedTable.getBaseColumns());
         }
         String[] ignorColsWhenUpdate = {
-                "created_by",
-                "creation_date",
-                "enabled_flag",
+                Constant.CREATED_BY,
+                Constant.CREATION_DATE,
+                Constant.CREATED_BY_NAME,
+                Constant.ENABLED_FLAG
         };
         List<IntrospectedColumn> columnAfterIgnore = new LinkedList<IntrospectedColumn>();
         for (IntrospectedColumn c : columns) {
@@ -136,7 +138,7 @@ public class AnnotatedUpdateByPrimaryKeyWithoutBLOBsMethodGenerator
 
         sb.setLength(0);
         javaIndent(sb, 1);
-        sb.append("\"and enabled_flag = 'Y'\"");
+        sb.append("\"and " + Constant.ENABLED_FLAG + " = " + Constant.ENABLED_FLAG_Y +"\"");
         method.addAnnotation(sb.toString());
 
         method.addAnnotation("})"); //$NON-NLS-1$

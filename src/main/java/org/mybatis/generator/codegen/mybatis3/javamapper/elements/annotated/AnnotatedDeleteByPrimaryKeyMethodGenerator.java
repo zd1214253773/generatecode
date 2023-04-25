@@ -27,6 +27,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.DeleteByPrimaryKeyMethodGenerator;
+import org.mybatis.generator.constant.Constant;
 
 /**
  * 
@@ -84,14 +85,16 @@ public class AnnotatedDeleteByPrimaryKeyMethodGenerator extends
         sb.append("\"update "); //$NON-NLS-1$
         sb.append(escapeStringForJava(
                 introspectedTable.getFullyQualifiedTableNameAtRuntime()));
-        sb.append(" set enabled_flag='N',\","); //$NON-NLS-1$
+        sb.append(" set " + Constant.ENABLED_FLAG + "=" + Constant.ENABLED_FLAG_N +",\","); //$NON-NLS-1$
         /*"last_update_date = #{lastUpdateDate,jdbcType=TIMESTAMP},",
                 "last_updated_by = #{lastUpdatedBy,jdbcType=VARCHAR}",
                 "where user_app_page_id = #{userAppPageId,jdbcType=VARCHAR}"*/
         method.addAnnotation(sb.toString());
         String[] others = {
-                "\"last_update_date = #{lastUpdateDate,jdbcType=TIMESTAMP},\",",
-                "\"last_updated_by = #{lastUpdatedBy,jdbcType=VARCHAR}\","};
+                "\" " + Constant.LAST_UPDATE_DATE + " = #{" + Constant.LAST_UPDATE_DATE_FIELD_NAME + ",jdbcType=TIMESTAMP},\",",
+                "\"" + Constant.LAST_UPDATED_BY + " = #{" + Constant.LAST_UPDATED_BY_FIELD_NAME + ",jdbcType=VARCHAR},\",",
+                "\"" + Constant.LAST_UPDATED_BY_NAME + " = #{" + Constant.LAST_UPDATED_BY_NAME_FIELD_NAME + ",jdbcType=VARCHAR}\","
+        };
 
         for(String other : others) {
             sb.setLength(0);
@@ -124,7 +127,7 @@ public class AnnotatedDeleteByPrimaryKeyMethodGenerator extends
 
         sb.setLength(0);
         javaIndent(sb, 1);
-        sb.append("\"and enabled_flag = 'Y'\"");
+        sb.append("\"and " + Constant.ENABLED_FLAG + " = " + Constant.ENABLED_FLAG_Y +"\"");
         method.addAnnotation(sb.toString());
 
         method.addAnnotation("})"); //$NON-NLS-1$
