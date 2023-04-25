@@ -7,3 +7,8 @@
 
 3.修改
 本代码需要的时候，最容易需要修改的地方就是org.mybatis.generator.codegen.mybatis3.Constant文件，其中项目包名前缀需要调整。
+
+4.mybatis代码生成器的使用
+ 1）首先 根据 https://blog.csdn.net/qq_35529931/article/details/82108308 学习下代码生成器的使用和配置。
+ 2）将修改后的生成mybatis-generator-core-1.3.6.jar包，放入本地maven路径中 \org\mybatis\generator\mybatis-generator-core\1.3.6
+ 覆盖mybatis-generator-core-1.3.6.jar。插件使用的就是maven该路径中的jar包。
