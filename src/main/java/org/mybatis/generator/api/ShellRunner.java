@@ -51,6 +51,7 @@ public class ShellRunner {
     private static final String HELP_2 = "-h"; //$NON-NLS-1$
 
     public static void main(String[] args) {
+        //指定配置文件，这里进行修改
         args = new String[]{"-configfile", "D:\\su3\\src\\main\\resources\\generatorConfig.xml", "-overwrite"};
         if (args.length == 0) {
             usage();

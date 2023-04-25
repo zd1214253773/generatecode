@@ -1,0 +1,9 @@
+1.调试
+调试入口类为：ShellRunner，里面有main方法
+
+2.打包
+如果需要打包，那么需要先用maven进行编译，然后以 build artifacts方式进行打包，参考：https://blog.csdn.net/weixin_53036603/article/details/128211312
+    注意【org.mybatis.generator.config.xml】和【org.mybatis.generator.configmybatis-generator-config_1_0.dtd】普通编译方式容易丢失，请注意闭坑
+
+3.修改
+本代码需要的时候，最容易需要修改的地方就是org.mybatis.generator.codegen.mybatis3.Constant文件，其中项目包名前缀需要调整。
